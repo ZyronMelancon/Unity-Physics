@@ -11,6 +11,7 @@ namespace HookesLaw
         Vector3 acceleration;
         public float mass;
         Vector3 force;
+        bool useGravity;
 
         public Particle(Vector3 pos)
         {
@@ -19,6 +20,7 @@ namespace HookesLaw
             acceleration = Vector3.zero;
             mass = 1;
             force = Vector3.zero;
+            useGravity = false;
         }
 
         public void AddForce(Vector3 f)
@@ -26,12 +28,19 @@ namespace HookesLaw
             force += f;
         }
 
+        public void UseGravity()
+        {
+            useGravity = true;
+        }
+
         // Update is called once per frame
         public void Update()
         {
-            acceleration = force / mass * Time.deltaTime;
-            velocity += acceleration * Time.deltaTime;
-            position += velocity * Time.deltaTime;
+            acceleration = force / mass;
+            velocity += acceleration * Time.fixedDeltaTime;
+            if (useGravity)
+                velocity += new Vector3(0, -9.81f, 0) * Time.fixedDeltaTime;
+            position += velocity * Time.fixedDeltaTime;
         }
     }
 
@@ -39,22 +48,30 @@ namespace HookesLaw
     {
         Particle p1, p2;
         float Ks;
+        float Kd;
         float Lo;
 
-        public SpringDamper(Particle pone, Particle ptwo, float springConstant, float restLength)
+        public SpringDamper(Particle pone, Particle ptwo, float springConstant, float restLength, float springDamping)
         {
             p1 = pone;
             p2 = ptwo;
             Ks = springConstant;
+            Kd = springDamping;
             Lo = restLength;
         }
 
-        public void Zoz()
+        public void CalculateForce()
         {
-            float distance = Vector3.Magnitude(p1.position - p2.position);
-            Vector3 normaldir = Vector3.Normalize(p1.position - p2.position);
+            Vector3 estar = p2.position - p1.position;
+            float l = Vector3.Magnitude(estar);
+            Vector3 e = Vector3.Normalize(estar);
 
-            Vector3 correction = normaldir * (Lo - distance) * Ks;
+            float v1 = Vector3.Dot(e, p1.velocity);
+            float v2 = Vector3.Dot(e, p2.velocity);
+
+            float Fsminusd = (-Ks * (Lo - l)) - (Kd * (v1-v2));
+
+            Vector3 correction = Fsminusd * e;
 
             p1.AddForce(correction);
             p2.AddForce(-correction);

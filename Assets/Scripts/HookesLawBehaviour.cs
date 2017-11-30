@@ -6,8 +6,12 @@ public class HookesLawBehaviour : MonoBehaviour {
 
     public GameObject part1gm;
     public GameObject part2gm;
+    public bool p1static;
+    public bool p1gravity;
+    public bool p2static;
+    public bool p2gravity;
     
-    HookesLaw.SpringDamper dampener;
+    HookesLaw.SpringDamper damper;
     HookesLaw.Particle part1;
     HookesLaw.Particle part2;
     
@@ -16,15 +20,21 @@ public class HookesLawBehaviour : MonoBehaviour {
     {
         part1 = new HookesLaw.Particle(part1gm.transform.position);
         part2 = new HookesLaw.Particle(part2gm.transform.position);
-        dampener = new HookesLaw.SpringDamper(part1, part2, 1, 0.1f);
-	}
+        damper = new HookesLaw.SpringDamper(part1, part2, 1f, 5, 10);
+        if (p1gravity)
+            part1.UseGravity();
+        if (p2gravity)
+            part2.UseGravity();
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        dampener.Zoz();
-        part1.Update();
-        part2.Update();
+        damper.CalculateForce();
+        if (!p1static)
+            part1.Update();
+        if(!p2static)
+            part2.Update();
 
         part1gm.transform.position = part1.position;
         part2gm.transform.position = part2.position;
