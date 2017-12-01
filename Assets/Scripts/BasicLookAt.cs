@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HookesLawBehaviour : MonoBehaviour
-{
+public class BasicLookAt : MonoBehaviour {
 
+    public GameObject objectToLookAt;
 
-    
-    HookesLaw.SpringDamper damper;
-    
 	// Use this for initialization
 	void Start ()
     {
-    }
+		
+	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-
-    }
+        transform.LookAt(objectToLookAt.transform);
+	}
 }

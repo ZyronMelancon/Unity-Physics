@@ -11,7 +11,7 @@ namespace HookesLaw
         Vector3 acceleration;
         public float mass;
         Vector3 force;
-        bool useGravity;
+        public bool useGravity;
 
         public Particle(Vector3 pos)
         {
@@ -38,9 +38,10 @@ namespace HookesLaw
         {
             acceleration = force / mass;
             velocity += acceleration * Time.fixedDeltaTime;
-            if (useGravity)
+            if (useGravity == true)
                 velocity += new Vector3(0, -9.81f, 0) * Time.fixedDeltaTime;
             position += velocity * Time.fixedDeltaTime;
+            force = Vector3.zero;
         }
     }
 
@@ -58,6 +59,16 @@ namespace HookesLaw
             Ks = springConstant;
             Kd = springDamping;
             Lo = restLength;
+        }
+
+        public Vector3 p1pos()
+        {
+            return p1.position;
+        }
+
+        public Vector3 p2pos()
+        {
+            return p2.position;
         }
 
         public void CalculateForce()
