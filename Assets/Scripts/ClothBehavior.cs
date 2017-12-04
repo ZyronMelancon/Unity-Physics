@@ -27,21 +27,45 @@ public class ClothBehavior : MonoBehaviour {
             for (int o = 0; o < rows; o++)
             {
                 GameObject par = Instantiate(particleObject);
-                par.transform.position = new Vector3(0, -i * rows * restPosition, -o * columns * restPosition);
+                par.transform.position = new Vector3(0, -i * restPosition, -o * restPosition);
                 particleObjects.Add(par);
                 HookesLaw.Particle par2 = new HookesLaw.Particle(par.transform.position);
                 par2.useGravity = true;
+
                 particles.Add(par2);
             }
 
-        particles[0].useGravity = false;
-        particles[columns-1].useGravity = false;
+        for (int i = 0;i < columns; i++)
+            particles[i*columns].useGravity = false;
 
         //Create all dampers
         for (int i = 0; i < columns; i++)
             for (int o = 0; o < rows; o++)
             {
-                dampers.Add(new HookesLaw.SpringDamper(particles[o + i], particles[o+1 + i], 5, restPosition, 10));
+                //Row
+                if (o < rows - 1) 
+                    dampers.Add(new HookesLaw.SpringDamper(particles[o + (i * columns)],
+                        particles[o + 1 + (i * columns)], constant, restPosition, damping));
+                //Double space row
+                if (o < rows - 2) 
+                    dampers.Add(new HookesLaw.SpringDamper(particles[o + (i * columns)],
+                        particles[o + 2 + (i * columns)], constant, restPosition * 2, damping));
+                //Col
+                if (i < columns - 1) 
+                    dampers.Add(new HookesLaw.SpringDamper(particles[i * rows + o], 
+                        particles[i * rows + rows + o], constant, restPosition, damping));
+                //Double space col
+                if (i < columns - 2) 
+                    dampers.Add(new HookesLaw.SpringDamper(particles[i * rows + o],
+                        particles[i * rows + (rows * 2) + o], constant, restPosition * 2, damping));
+                //Diagonal TL-BR
+                if (i < columns-1 && o < rows-1) 
+                    dampers.Add(new HookesLaw.SpringDamper(particles[i * rows + o],
+                        particles[i * rows + rows + o + 1], constant, restPosition * 1.41f, damping));
+                //Diagonal TR-BL
+                if (i < columns - 1 && o < rows && o > 0) 
+                    dampers.Add(new HookesLaw.SpringDamper(particles[i * rows + o],
+                        particles[i * rows + rows + o - 1], constant, restPosition * 1.41f, damping));
             }
     }
 	
@@ -55,10 +79,15 @@ public class ClothBehavior : MonoBehaviour {
         }
 
         foreach (var i in particles)
-            if(i.useGravity)
+            if (i.useGravity)
+            {
+                i.AddForce(new Vector3(-40, 0, 0));
                 i.Update();
+            }
 
         for (int i = 0; i < particles.Count; i++)
+        {            
             particleObjects[i].transform.position = particles[i].position;
-	}
+        }
+    }
 }
