@@ -29,9 +29,9 @@ public class ClothBehavior : MonoBehaviour {
         particleObjects = new List<GameObject>();
         dampers = new List<HookesLaw.SpringDamper>();
 
-        GenerateParticles();
-        GenerateDampers();
-        Relock();
+        //GenerateParticles();
+        //GenerateDampers();
+        //Relock();
     }
 
     public void GenerateParticles()
@@ -55,6 +55,7 @@ public class ClothBehavior : MonoBehaviour {
             {
                 GameObject par = Instantiate(particleObject);
                 par.transform.position = new Vector3(0, -o * restPosition, -i * restPosition);
+                par.transform.parent = transform;
                 particleObjects.Add(par);
                 HookesLaw.Particle par2 = new HookesLaw.Particle(par.transform.position);
                 par2.useGravity = true;
@@ -65,6 +66,9 @@ public class ClothBehavior : MonoBehaviour {
 
     public void Relock()
     {
+        foreach (var i in particles)
+            i.useGravity = true;
+
         if (lockLeft)
             for (int i = 0; i < rows; i++)
                 particles[i * columns].useGravity = false;
@@ -136,7 +140,7 @@ public class ClothBehavior : MonoBehaviour {
         foreach (var i in particles)
             if (i.useGravity)
             {
-                i.AddForce(new Vector3(40, 0, 0));
+                i.AddForce(new Vector3(20, 0, 0));
                 i.Update();
             }
 

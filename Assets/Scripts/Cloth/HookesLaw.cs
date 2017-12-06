@@ -84,8 +84,10 @@ namespace HookesLaw
 
             Vector3 correction = Fsminusd * e;
 
-            p1.AddForce(correction);
-            p2.AddForce(-correction);
+            if(p1.useGravity)
+                p1.AddForce(correction);
+            if(p2.useGravity)
+                p2.AddForce(-correction);
         }
     }
 }
