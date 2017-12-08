@@ -16,6 +16,9 @@ public class ClothBehavior : MonoBehaviour {
     public bool lockTop;
     public bool genX;
     public bool genInforce;
+    public float windDirX = 2;
+    public float windDirY = 2;
+    public float windDirZ = 0;
 
 
     List<HookesLaw.Particle> particles;
@@ -128,19 +131,40 @@ public class ClothBehavior : MonoBehaviour {
             }
     }
 
-	// Update is called once per frame
-	void Update ()
+    public void CalculateWind(HookesLaw.Particle p1, HookesLaw.Particle p2, HookesLaw.Particle p3, Vector3 windDir, float p, float cd)
     {
+        Vector3 vsurface = p1.velocity + p2.velocity + p3.velocity / 3;
+        Vector3 v = vsurface - windDir;
+        Vector3 n = Vector3.Cross((p2.position - p1.position), (p3.position - p1.position)).normalized;
+        float a = Vector3.Dot(v, n) / v.magnitude;
+
+        Vector3 f = -.5f * p * (v.magnitude * v.magnitude) * cd * a * n;
+
+        p1.AddForce(f / 3);
+        p2.AddForce(f / 3);
+        p3.AddForce(f / 3);
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+        for (int i = 0; i < particles.Count - columns -1; i++)
+            if (i / columns != 1)
+            {
+                CalculateWind(particles[i], particles[i + 1], particles[i + columns], new Vector3(windDirX, windDirY, windDirZ), 1, 1);
+                CalculateWind(particles[i + 1], particles[i + columns], particles[i + columns + 1], new Vector3(windDirX, windDirY, windDirZ), 1, 1);
+            }
+
         foreach (var i in dampers)
         {
-            Debug.DrawLine(i.p1pos(), i.p2pos(), Color.white);
+            Debug.DrawLine(i.p1pos(), i.p2pos(), 
+                Color.HSVToRGB(1-Mathf.Min(i.p1.velocity.magnitude/10, 1),0.75f,1));
             i.CalculateForce();
         }
 
         foreach (var i in particles)
             if (i.useGravity)
             {
-                i.AddForce(new Vector3(20, 0, 0));
                 i.Update();
             }
 

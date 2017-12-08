@@ -47,7 +47,7 @@ namespace HookesLaw
 
     public class SpringDamper
     {
-        Particle p1, p2;
+        public Particle p1, p2;
         float Ks;
         float Kd;
         float Lo;
