@@ -16,8 +16,8 @@ public class ClothBehavior : MonoBehaviour {
     public bool lockTop;
     public bool genX;
     public bool genInforce;
-    public float windDirX = 2;
-    public float windDirY = 2;
+    public float windDirX = 0;
+    public float windDirY = 0;
     public float windDirZ = 0;
 
 

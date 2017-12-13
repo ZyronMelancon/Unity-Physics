@@ -17,6 +17,10 @@ public class UIInputHandler : MonoBehaviour {
     public InputField row;
     public InputField col;
 
+    public Slider windX;
+    public Slider windY;
+    public Slider windZ;
+
     ClothBehavior cloth;
 
 	// Use this for initialization
@@ -57,4 +61,10 @@ public class UIInputHandler : MonoBehaviour {
         cloth.columns = int.Parse(col.text);
     }
 
+    public void newWind()
+    {
+        cloth.windDirX = windX.value;
+        cloth.windDirY = windY.value;
+        cloth.windDirZ = windZ.value;
+    }
 }

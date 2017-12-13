@@ -25,7 +25,8 @@ namespace HookesLaw
 
         public void AddForce(Vector3 f)
         {
-            force += f;
+            if (useGravity)
+                force += f;
         }
 
         public void UseGravity()
