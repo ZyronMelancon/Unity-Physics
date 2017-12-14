@@ -35,14 +35,16 @@ namespace HookesLaw
         }
 
         // Update is called once per frame
-        public void Update()
+        public Vector3 Update()
         {
-            acceleration = force / mass;
-            velocity += acceleration * Time.fixedDeltaTime;
-            if (useGravity == true)
-                velocity += new Vector3(0, -9.81f, 0) * Time.fixedDeltaTime;
-            position += velocity * Time.fixedDeltaTime;
-            force = Vector3.zero;
+            if (useGravity == true && force.magnitude > 0)
+            {
+                acceleration = force / mass + new Vector3(0, -9.81f, 0);
+                velocity += acceleration * Time.fixedDeltaTime;
+                position += velocity * Time.fixedDeltaTime;
+                force = Vector3.zero;
+            }
+            return position;
         }
     }
 
@@ -84,11 +86,9 @@ namespace HookesLaw
             float Fsminusd = (-Ks * (Lo - l)) - (Kd * (v1-v2));
 
             Vector3 correction = Fsminusd * e;
-
-            if(p1.useGravity)
-                p1.AddForce(correction);
-            if(p2.useGravity)
-                p2.AddForce(-correction);
+            
+            p1.AddForce(correction);
+            p2.AddForce(-correction);
         }
     }
 }

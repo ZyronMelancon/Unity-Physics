@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIInputHandler : MonoBehaviour {
-
+public class UIInputHandler : MonoBehaviour
+{
     public Toggle left;
     public Toggle right;
     public Toggle top;

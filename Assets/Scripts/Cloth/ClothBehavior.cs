@@ -20,16 +20,13 @@ public class ClothBehavior : MonoBehaviour {
     public float windDirY = 0;
     public float windDirZ = 0;
 
-
-    List<HookesLaw.Particle> particles;
     List<HookesLaw.SpringDamper> dampers;
-    public List<GameObject> particleObjects;
+    public List<ParticleBehavior> particleObjects;
 
     // Use this for initialization
     void Start()
     {
-        particles = new List<HookesLaw.Particle>();
-        particleObjects = new List<GameObject>();
+        particleObjects = new List<ParticleBehavior>();
         dampers = new List<HookesLaw.SpringDamper>();
 
         //GenerateParticles();
@@ -40,15 +37,14 @@ public class ClothBehavior : MonoBehaviour {
     public void GenerateParticles()
     {
         //If there is anything already in place, remove all to reset
-        if (particles.Count > 0)
+        if (particleObjects.Count > 0)
         {
             for (int i = dampers.Count - 1; i >= 0; i--)
                 dampers.Remove(dampers[i]);
-            for (int i = particles.Count - 1; i >= 0; i--)
+            for (int i = particleObjects.Count - 1; i >= 0; i--)
             {
-                Destroy(particleObjects[i]);
+                Destroy(particleObjects[i].gameObject);
                 particleObjects.Remove(particleObjects[i]);
-                particles.Remove(particles[i]);
             }
         }
 
@@ -58,32 +54,30 @@ public class ClothBehavior : MonoBehaviour {
             {
                 GameObject par = Instantiate(particleObject);
                 par.transform.position = new Vector3(0, -o * restPosition, -i * restPosition);
+                par.GetComponent<ParticleBehavior>().particle = new HookesLaw.Particle(par.transform.position);
+                par.GetComponent<ParticleBehavior>().particle.position = par.transform.position;
                 par.transform.parent = transform;
-                particleObjects.Add(par);
-                HookesLaw.Particle par2 = new HookesLaw.Particle(par.transform.position);
-                par2.useGravity = true;
-
-                particles.Add(par2);
+                particleObjects.Add(par.GetComponent<ParticleBehavior>());
             }
     }
 
     public void Relock()
     {
-        foreach (var i in particles)
-            i.useGravity = true;
+        foreach (var i in particleObjects)
+            i.particle.useGravity = true;
 
         if (lockLeft)
             for (int i = 0; i < rows; i++)
-                particles[i * columns].useGravity = false;
+                particleObjects[i * columns].particle.useGravity = false;
         if (lockRight)
             for (int i = 0; i < rows; i++)
-                particles[i * columns + columns - 1].useGravity = false;
+                particleObjects[i * columns + columns - 1].particle.useGravity = false;
         if (lockTop)
             for (int i = 0; i < columns; i++)
-                particles[i].useGravity = false;
+                particleObjects[i].particle.useGravity = false;
         if (lockBottom)
             for (int i = 0; i < columns; i++)
-                particles[columns * (rows - 1) + i].useGravity = false;
+                particleObjects[columns * (rows - 1) + i].particle.useGravity = false;
     }
 
     public void GenerateDampers()
@@ -98,35 +92,37 @@ public class ClothBehavior : MonoBehaviour {
             {
                 //Row
                 if (r < columns - 1)
-                    dampers.Add(new HookesLaw.SpringDamper(particles[r + c * columns],
-                        particles[r + 1 + (c * columns)], constant, restPosition, damping));
+                {
+                    dampers.Add(new HookesLaw.SpringDamper(particleObjects[r + c * columns].particle,
+                        particleObjects[r + 1 + (c * columns)].particle, constant, restPosition, damping));
+                }
                 //Col
                 if (c < rows-1 )
-                    dampers.Add(new HookesLaw.SpringDamper(particles[r + c * columns],
-                        particles[r + c * columns + columns], constant, restPosition, damping));
+                    dampers.Add(new HookesLaw.SpringDamper(particleObjects[r + c * columns].particle,
+                        particleObjects[r + c * columns + columns].particle, constant, restPosition, damping));
 
                 if (genInforce)
                 {
                     //Row Reinforcement
                     if (r < columns - 2)
-                        dampers.Add(new HookesLaw.SpringDamper(particles[r + c * columns],
-                            particles[r + 2 + (c * columns)], constant, restPosition * 2, damping));
+                        dampers.Add(new HookesLaw.SpringDamper(particleObjects[r + c * columns].particle,
+                            particleObjects[r + 2 + (c * columns)].particle, constant, restPosition * 2, damping));
                     //Col Reinforcement
                     if (c < rows - 2)
-                        dampers.Add(new HookesLaw.SpringDamper(particles[r + c * columns],
-                            particles[r + c * columns + columns * 2], constant, restPosition * 2, damping));
+                        dampers.Add(new HookesLaw.SpringDamper(particleObjects[r + c * columns].particle,
+                            particleObjects[r + c * columns + columns * 2].particle, constant, restPosition * 2, damping));
                 }
                 
                 if (genX)
                 {
                     //Diagonal TL-BR
                     if (c < rows - 1 && r < columns - 1)
-                        dampers.Add(new HookesLaw.SpringDamper(particles[r + c * columns],
-                            particles[r + c * columns + columns + 1], constant, restPosition * 1.41f, damping));
+                        dampers.Add(new HookesLaw.SpringDamper(particleObjects[r + c * columns].particle,
+                            particleObjects[r + c * columns + columns + 1].particle, constant, restPosition * 1.41f, damping));
                     //Diagonal TR-BL
                     if (c < rows - 1 && r < columns && r > 0)
-                        dampers.Add(new HookesLaw.SpringDamper(particles[r + c * columns],
-                            particles[r + c * columns + columns - 1], constant, restPosition * 1.41f, damping));
+                        dampers.Add(new HookesLaw.SpringDamper(particleObjects[r + c * columns].particle,
+                            particleObjects[r + c * columns + columns - 1].particle, constant, restPosition * 1.41f, damping));
                 }
             }
     }
@@ -148,11 +144,13 @@ public class ClothBehavior : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
-        for (int i = 0; i < particles.Count - columns -1; i++)
+        for (int i = 0; i < particleObjects.Count - columns - 1; i++)
             if (i / columns != 1)
             {
-                CalculateWind(particles[i], particles[i + 1], particles[i + columns], new Vector3(windDirX, windDirY, windDirZ), 1, 1);
-                CalculateWind(particles[i + 1], particles[i + columns], particles[i + columns + 1], new Vector3(windDirX, windDirY, windDirZ), 1, 1);
+                //TL, TR, BL
+                CalculateWind(particleObjects[i].particle, particleObjects[i + 1].particle, particleObjects[i + columns].particle, new Vector3(windDirX, windDirY, windDirZ), 1, 1);
+                //TR, BL, BR
+                CalculateWind(particleObjects[i + 1].particle, particleObjects[i + columns].particle, particleObjects[i + columns + 1].particle, new Vector3(windDirX, windDirY, windDirZ), 1, 1);
             }
 
         foreach (var i in dampers)
@@ -162,15 +160,10 @@ public class ClothBehavior : MonoBehaviour {
             i.CalculateForce();
         }
 
-        foreach (var i in particles)
-            if (i.useGravity)
-            {
-                i.Update();
-            }
-
-        for (int i = 0; i < particles.Count; i++)
-        {            
-            particleObjects[i].transform.position = particles[i].position;
-        }
+        //foreach (var i in particles)
+        //    if (i.useGravity)
+        //    {
+        //        i.Update();
+        //    }
     }
 }
