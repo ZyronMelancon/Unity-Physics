@@ -30,15 +30,15 @@ public class FlockingBehavior : MonoBehaviour {
             v2 = Dispersion(i) * kDispersion;
             v3 = Alignment(i) * kAlignment;
 
-      
+            
             var dir = (ray.GetPoint(25) - i.Position);//.normalized;
 
 
             i.Add_Force(1, v1 + v2 + v3);
-
-            if (Vector3.Magnitude(ray.GetPoint(25)) < 5)
+            
+            if(Input.GetAxis("Fire1") > 0)
                 i.Add_Force(1, dir);
-
+            
         }
 
         foreach (BoidBehavior f in GetComponent<AgentFactory>().GetBoidObjects())
@@ -51,30 +51,32 @@ public class FlockingBehavior : MonoBehaviour {
 
         foreach (Boid i in GetComponent<AgentFactory>().GetBoids())
             if (i != b)
-                if (Vector3.Magnitude(i.Position - b.Position) < kDispersion)
+                if (Vector3.Magnitude(i.Position - b.Position) < 2)
                     c = c - (i.Position - b.Position);
         return c;
     }
+
     Vector3 Cohesion(Boid b)
     {
         Vector3 pcj = new Vector3();
         foreach (Boid i in GetComponent<AgentFactory>().GetBoids())
-            if (i != b)
+            if (i != b && (b.Position - i.Position).magnitude < seekfac)
                 pcj = pcj + i.Position;
 
         pcj = pcj / GetComponent<AgentFactory>().GetBoids().Count;
 
         return (pcj - b.Position) / 100;
     }
+
     Vector3 Alignment(Boid b)
     {
         Vector3 pv = new Vector3();
 
         foreach (Boid i in GetComponent<AgentFactory>().GetBoids())
-            if (i != b)
+            if (i != b && (b.Position - i.Position).magnitude < seekfac)
                 pv = pv + i.Velocity;
 
-        //pv = pv / GetComponent<AgentFactory>().GetBoids().Count;
+        pv = pv / GetComponent<AgentFactory>().GetBoids().Count;
 
         return (pv - b.Velocity) / 8;
     }

@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd7f13d67a5f8fb458eb5050728d1e92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Amount: 20
+  Amount: 10
   boidObject: {fileID: 1606778846556532, guid: 37b3672b699f5c7439c1152bae17d60d, type: 2}
 --- !u!4 &1471459387
 Transform:
@@ -311,7 +311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14dc89eea41a3914599db9c02937aad5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kCohesion: 50
-  kDispersion: 2
-  kAlignment: 5
+  kCohesion: 10
+  kDispersion: 5
+  kAlignment: 0.3
   seekfac: 10

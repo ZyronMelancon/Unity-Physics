@@ -6,8 +6,7 @@ public class Agent : ScriptableObject
 {
     [SerializeField]
     protected float mass;
-    [SerializeField]
-    protected Vector3 velocity;
+
     [SerializeField]
     protected Vector3 acceleration;
     [SerializeField]
@@ -25,18 +24,18 @@ public class Boid : Agent, IMoveable
     public override void Initialize()
     {
         mass = 1;
-        velocity = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
+        Velocity = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
         acceleration = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
         force = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
-        max_speed = 10;
+        max_speed = 20;
     }
 
     public Vector3 Update_Agent(float dt)
     {
         acceleration = force / mass;
-        velocity += acceleration;
-        velocity = Vector3.ClampMagnitude(velocity, max_speed);
-        Position += velocity * dt;
+        Velocity += acceleration;
+        Velocity = Vector3.ClampMagnitude(Velocity, max_speed);
+        Position += Velocity * dt;
         force = Vector3.zero;
         return Position;
     }
