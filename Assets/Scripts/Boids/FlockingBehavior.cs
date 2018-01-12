@@ -34,9 +34,10 @@ public class FlockingBehavior : MonoBehaviour {
             var dir = (ray.GetPoint(25) - i.Position);//.normalized;
 
 
-            i.Add_Force(1, v1 + v2 + v3 );
+            i.Add_Force(1, v1 + v2 + v3);
 
-
+            if (Vector3.Magnitude(ray.GetPoint(25)) < 5)
+                i.Add_Force(1, dir);
 
         }
 
